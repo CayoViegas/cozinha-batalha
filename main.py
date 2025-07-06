@@ -31,9 +31,20 @@ class Game:
             self.screen.fill(settings.BLACK)
             self.all_sprites.draw(self.screen)
             ui.draw_panel(self.screen)
-            panel_top = settings.SCREEN_HEIGHT - (settings.SCREEN_HEIGHT // 3)
-            text_y = panel_top + 30
-            ui.draw_text(self.screen, "O que o Cozinheiro fará?", 24, settings.SCREEN_WIDTH / 2, text_y)
+            
+            player_ui_pos_x = 105
+            player_name_pos_y = 12
+            player_bar_pos_y = 25
+            player_health_bar_rect = pygame.Rect(player_ui_pos_x - 75, player_bar_pos_y, 150, 20)
+            ui.draw_text(self.screen, self.player.name, 22, player_ui_pos_x, player_name_pos_y, settings.WHITE)
+            ui.draw_health_bar(self.screen, self.player.health, self.player.max_health, player_health_bar_rect)
+
+            boss_ui_pos_x = self.screen.get_width() - 105
+            boss_name_pos_y = 12
+            boss_bar_pos_y = 25
+            boss_health_bar_rect = pygame.Rect(boss_ui_pos_x - 75, boss_bar_pos_y, 150, 20)
+            ui.draw_text(self.screen, self.boss.name, 22, boss_ui_pos_x, boss_name_pos_y, settings.WHITE)
+            ui.draw_health_bar(self.screen, self.boss.health, self.boss.max_health, boss_health_bar_rect)
 
             pygame.display.flip()
             self.clock.tick(settings.FPS)
