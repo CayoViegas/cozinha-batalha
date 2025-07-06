@@ -3,6 +3,7 @@ import sys
 import settings
 from src.player import Player
 from src.boss import Boss
+import src.ui as ui
 
 class Game:
     def __init__(self):
@@ -17,15 +18,22 @@ class Game:
 
     def run(self):
         while True:
+            # Tratamento de eventos
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
+            # Atualização
             self.all_sprites.update()
 
+            # Desenho
             self.screen.fill(settings.BLACK)
             self.all_sprites.draw(self.screen)
+            ui.draw_panel(self.screen)
+            panel_top = settings.SCREEN_HEIGHT - (settings.SCREEN_HEIGHT // 3)
+            text_y = panel_top + 30
+            ui.draw_text(self.screen, "O que o Cozinheiro fará?", 24, settings.SCREEN_WIDTH / 2, text_y)
 
             pygame.display.flip()
             self.clock.tick(settings.FPS)
