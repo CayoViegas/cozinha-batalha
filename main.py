@@ -16,6 +16,13 @@ class Game:
         self.player = Player((self.screen.get_width() * 0.25, self.screen.get_height() * 0.5), self.all_sprites)
         self.boss = Boss((self.screen.get_width() * 0.75, self.screen.get_height() * 0.5), self.all_sprites)
 
+        # Estado da batalha
+        self.battle_state = "PLAYER_TURN"
+
+        # Cronometro de turno
+        self.turn_timer = None
+        self.turn_delay = 1500
+
     def run(self):
         while True:
             # Tratamento de eventos
@@ -24,8 +31,22 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE and self.battle_state == "PLAYER_TURN":
+                        print("Turno do Jogador: Atacando!")
+                        self.boss.health -= self.player.attack_power
+                        self.battle_state = "BOSS_ACTION"
+                        self.turn_timer = pygame.time.get_ticks()
+
             # Atualização
             self.all_sprites.update()
+
+            if self.battle_state == "BOSS_ACTION":
+                current_time = pygame.time.get_ticks()
+                if current_time - self.turn_timer > self.turn_delay:
+                    print("Turno do Boss: Ação executada!")
+                    self.player.health -= self.boss.attack_power
+                    self.battle_state = "PLAYER_TURN"
 
             # Desenho
             self.screen.fill(settings.BLACK)
@@ -45,6 +66,13 @@ class Game:
             boss_health_bar_rect = pygame.Rect(boss_ui_pos_x - 75, boss_bar_pos_y, 150, 20)
             ui.draw_text(self.screen, self.boss.name, 22, boss_ui_pos_x, boss_name_pos_y, settings.WHITE)
             ui.draw_health_bar(self.screen, self.boss.health, self.boss.max_health, boss_health_bar_rect)
+
+            panel_top = settings.SCREEN_HEIGHT - (settings.SCREEN_HEIGHT // 3)
+            text_y = panel_top + 30
+            if self.battle_state == "PLAYER_TURN":
+                ui.draw_text(self.screen, "Pressione ESPAÇO para atacar!", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
+            elif self.battle_state == "BOSS_ACTION":
+                ui.draw_text(self.screen, "Cebola Monstruosa está atacando...", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
 
             pygame.display.flip()
             self.clock.tick(settings.FPS)
