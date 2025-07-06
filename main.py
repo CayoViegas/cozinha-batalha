@@ -35,8 +35,14 @@ class Game:
                     if event.key == pygame.K_SPACE and self.battle_state == "PLAYER_TURN":
                         print("Turno do Jogador: Atacando!")
                         self.boss.health -= self.player.attack_power
-                        self.battle_state = "BOSS_ACTION"
-                        self.turn_timer = pygame.time.get_ticks()
+                        
+                        if self.boss.health <= 0:
+                            self.boss.health = 0
+                            self.battle_state = "VICTORY"
+                            print("Vitoria!")
+                        else:
+                            self.battle_state = "BOSS_ACTION"
+                            self.turn_timer = pygame.time.get_ticks()
 
             # Atualização
             self.all_sprites.update()
@@ -46,7 +52,13 @@ class Game:
                 if current_time - self.turn_timer > self.turn_delay:
                     print("Turno do Boss: Ação executada!")
                     self.player.health -= self.boss.attack_power
-                    self.battle_state = "PLAYER_TURN"
+                    
+                    if self.player.health <= 0:
+                        self.player.health = 0
+                        self.battle_state = "DEFEAT"
+                        print("Derrota!")
+                    else:
+                        self.battle_state = "PLAYER_TURN"
 
             # Desenho
             self.screen.fill(settings.BLACK)
@@ -73,6 +85,11 @@ class Game:
                 ui.draw_text(self.screen, "Pressione ESPAÇO para atacar!", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
             elif self.battle_state == "BOSS_ACTION":
                 ui.draw_text(self.screen, "Cebola Monstruosa está atacando...", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
+
+            if self.battle_state == "VICTORY":
+                ui.draw_text(self.screen, "VOCÊ VENCEU!", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
+            elif self.battle_state == "DEFEAT":
+                ui.draw_text(self.screen, "VOCÊ PERDEU!", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
 
             pygame.display.flip()
             self.clock.tick(settings.FPS)
