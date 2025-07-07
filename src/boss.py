@@ -2,15 +2,18 @@ import pygame
 import settings
 
 class Boss(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
+    def __init__(self, boss_data, pos, group):
         super().__init__(group)
-        self.image = pygame.Surface((128, 128))
-        self.image.fill(settings.BLUE)
+
+        size = boss_data["placeholder_size"]
+        color = boss_data["placeholder_color"]
+        self.image = pygame.Surface(size)
+        self.image.fill(color)
         self.rect = self.image.get_rect(center=pos)
 
         # Atributos de combate
-        self.name = "Cebola Monstruosa"
-        self.health = 300
-        self.max_health = 300
-        self.attack_power = 20
-        self.defense = 10
+        self.name = boss_data["name"]
+        self.health = boss_data["health"]
+        self.max_health = boss_data["health"]
+        self.attack_power = boss_data["attack_power"]
+        self.defense = boss_data["defense"]

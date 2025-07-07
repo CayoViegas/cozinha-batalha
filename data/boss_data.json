@@ -1,0 +1,18 @@
+{
+    "cebola_monstruosa": {
+        "name": "Cebola Monstruosa",
+        "health": 300,
+        "attack_power": 20,
+        "defense": 10,
+        "placeholder_size": [128, 128],
+        "placeholder_color": [138, 43, 226]
+    },
+    "tomate_tirano": {
+        "name": "Tomate Tirano",
+        "health": 250,
+        "attack_power": 25,
+        "defense": 5,
+        "placeholder_size": [100, 100],
+        "placeholder_color": [220, 20, 60]
+    }
+}
