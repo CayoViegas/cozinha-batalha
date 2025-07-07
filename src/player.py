@@ -14,3 +14,4 @@ class Player(pygame.sprite.Sprite):
         self.max_health = 100
         self.attack_power = 15
         self.defense = 5
+        self.is_defending = False
