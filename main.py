@@ -47,26 +47,47 @@ class Game:
                 if self.game_state == "BATTLE":
                     self.battle.handle_events(event)
 
-            # Atualização
+            # Atualização
             if self.game_state == "KITCHEN":
                 self.player.update(dt)
-            if self.game_state == "BATTLE":
+
+                # Gatilho da batalha
+                if self.player.rect.right >= settings.SCREEN_WIDTH:
+                    print("Iniciando batalha com a Cebola Monstruosa!")
+
+                    boss_info = self.boss_data["cebola_monstruosa"]
+                    
+                    boss_pos = (settings.SCREEN_WIDTH * 0.75, settings.SCREEN_HEIGHT * 0.5)
+                    
+                    self.boss = Boss(boss_info, boss_pos, self.all_sprites)
+                    
+                    self.player.pos.x = settings.SCREEN_WIDTH * 0.25
+                    self.player.rect.centerx = self.player.pos.x
+
+                    self.battle = Battle(self.player, self.boss)
+
+                    self.game_state = "BATTLE"
+
+            elif self.game_state == "BATTLE":
                 battle_result = self.battle.update()
                 if battle_result:
-                    print(f"A batalha acabou com o resultado: {battle_result}")
-                    self.game_state = "KITCHEN"
-                    self.player.pos = pygame.math.Vector2(self.screen.get_width() * 0.25, self.screen.get_height() * 0.5)
+                    print(f"A batalha terminou com o resultado: {battle_result}")
+
+                    self.boss.kill()
+                    self.boss = None
+                    self.battle = None
+
                     self.player.health = self.player.max_health
+                    self.game_state = "KITCHEN"
 
             # Desenho
             self.screen.fill(settings.BLACK)
             self.all_sprites.draw(self.screen)
 
-            if self.game_state == "BATTLE":
+            if self.game_state == "BATTLE" and self.battle:
                 self.battle.draw(self.screen)
 
             pygame.display.flip()
-            #self.clock.tick(settings.FPS)
 
 if __name__ == "__main__":
     game = Game()
