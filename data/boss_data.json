@@ -1,18 +1,26 @@
 {
     "cebola_monstruosa": {
-        "name": "Cebola Monstruosa",
+        "name": "Ceborinha",
         "health": 300,
         "attack_power": 20,
         "defense": 10,
         "placeholder_size": [128, 128],
         "placeholder_color": [138, 43, 226]
     },
-    "tomate_tirano": {
-        "name": "Tomate Tirano",
-        "health": 250,
+    "gatorango": {
+        "name": "Gatorango",
+        "health": 180,
         "attack_power": 25,
         "defense": 5,
-        "placeholder_size": [100, 100],
-        "placeholder_color": [220, 20, 60]
+        "placeholder_size": [80, 80],
+        "placeholder_color": [255, 105, 180]
+    },
+    "kiwi": {
+        "name": "Kiwi",
+        "health": 220,
+        "attack_power": 18,
+        "defense": 8,
+        "placeholder_size": [90, 70],
+        "placeholder_color": [139, 69, 19]
     }
 }

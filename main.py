@@ -54,21 +54,38 @@ class Game:
             if self.game_state == "KITCHEN":
                 self.player.update(dt)
 
-                # Gatilho da batalha
+                # Gatilho da batalha 1v1 (contra Ceborinha)
                 if self.player.rect.right >= settings.SCREEN_WIDTH:
-                    print("Iniciando batalha com a Cebola Monstruosa!")
+                    print("Iniciando batalha com o Ceborinha!")
 
                     boss_info = self.boss_data["cebola_monstruosa"]
                     boss_pos = (settings.SCREEN_WIDTH * 0.75, settings.SCREEN_HEIGHT * 0.5)
-                    
                     cebola_boss = Boss(boss_info, boss_pos, self.all_sprites)
                     self.current_enemies = [cebola_boss]
                     
                     self.player.pos.x = settings.SCREEN_WIDTH * 0.25
                     self.player.rect.centerx = self.player.pos.x
-
                     self.battle = Battle(self.player, self.current_enemies)
+                    self.game_state = "BATTLE"
 
+                # Gatilho da batalha 1v2 (Salada de Frutas)
+                elif self.player.rect.left <= 0:
+                    print("Iniciando batalha com Gatorango e Kiwi!")
+
+                    gatorango_info = self.boss_data["gatorango"]
+                    kiwi_info = self.boss_data["kiwi"]
+
+                    gatorango_pos = (settings.SCREEN_WIDTH * 0.75, settings.SCREEN_HEIGHT * 0.25)
+                    kiwi_pos = (settings.SCREEN_WIDTH * 0.75, settings.SCREEN_HEIGHT * 0.5)
+
+                    gatorango_boss = Boss(gatorango_info, gatorango_pos, self.all_sprites)
+                    kiwi_boss = Boss(kiwi_info, kiwi_pos, self.all_sprites)
+
+                    self.current_enemies = [gatorango_boss, kiwi_boss]
+
+                    self.player.pos.x = settings.SCREEN_WIDTH * 0.25
+                    self.player.rect.centerx = self.player.pos.x
+                    self.battle = Battle(self.player, self.current_enemies)
                     self.game_state = "BATTLE"
 
             elif self.game_state == "BATTLE":
