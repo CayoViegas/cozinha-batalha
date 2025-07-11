@@ -56,15 +56,15 @@ class Game:
                     print("Iniciando batalha com a Cebola Monstruosa!")
 
                     boss_info = self.boss_data["cebola_monstruosa"]
-                    
                     boss_pos = (settings.SCREEN_WIDTH * 0.75, settings.SCREEN_HEIGHT * 0.5)
                     
-                    self.boss = Boss(boss_info, boss_pos, self.all_sprites)
+                    cebola_boss = Boss(boss_info, boss_pos, self.all_sprites)
+                    self.current_enemies = [cebola_boss]
                     
                     self.player.pos.x = settings.SCREEN_WIDTH * 0.25
                     self.player.rect.centerx = self.player.pos.x
 
-                    self.battle = Battle(self.player, self.boss)
+                    self.battle = Battle(self.player, self.current_enemies)
 
                     self.game_state = "BATTLE"
 
@@ -73,10 +73,12 @@ class Game:
                 if battle_result:
                     print(f"A batalha terminou com o resultado: {battle_result}")
 
-                    self.boss.kill()
-                    self.boss = None
-                    self.battle = None
+                    for enemy in self.current_enemies:
+                        enemy.kill()
 
+                    self.current_enemies = []
+
+                    self.battle = None
                     self.player.health = self.player.max_health
                     self.game_state = "KITCHEN"
 
