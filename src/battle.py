@@ -22,6 +22,10 @@ class Battle:
         self.turn_timer = None
         self.turn_delay = 1500
 
+        self.action_text = ""
+        self.action_timer = None
+        self.action_delay = 1000
+
     def get_current_target(self):
         return self.enemies.sprites()[self.target_index]
 
@@ -39,30 +43,9 @@ class Battle:
             # Confirmação da ação
             elif event.key == pygame.K_x:
                 selected_action = self.menu_options[self.selected_option]
-                if selected_action == "Atacar":
-                    target_enemy = self.get_current_target()
-                    target_enemy.health -= self.player.attack_power
-                    
-                    
-                    if target_enemy.health <= 0:
-                        target_enemy.health = 0
-                        print(f"{target_enemy.name} foi derrotado!")
-                        target_enemy.kill()
-                        if self.target_index >= len(self.enemies):
-                            self.target_index = 0
-                    
-                    if not self.enemies:
-                        self.battle_state = "VICTORY"
-                    else:
-                        self.battle_state = "ENEMIES_ACTION"
-                        self.acting_enemy_index = 0
-                        self.turn_timer = pygame.time.get_ticks()
-
-                elif selected_action == "Defender":
-                    self.player.is_defending = True
-                    self.battle_state = "ENEMIES_ACTION"
-                    self.acting_enemy_index = 0
-                    self.turn_timer = pygame.time.get_ticks()
+                self.action_text = f"{self.player.name} usou {selected_action}!"
+                self.battle_state = "PERFORMING_PLAYER_ACTION"
+                self.action_timer = pygame.time.get_ticks()
 
     def update(self):
         if self.battle_state == "VICTORY":
@@ -70,33 +53,69 @@ class Battle:
         if self.battle_state == "DEFEAT":
             return "DEFEAT"
         
+        current_time = pygame.time.get_ticks()
+
+        if self.battle_state == "PERFORMING_PLAYER_ACTION":
+            if current_time - self.action_timer > self.action_delay:
+                self.execute_player_action()
+                
+                if self.battle_state != "VICTORY":
+                    self.battle_state = "ENEMIES_ACTION"
+                    self.acting_enemy_index = 0
+                    self.turn_timer = current_time
+
         if self.battle_state == "ENEMIES_ACTION":
-            current_time = pygame.time.get_ticks()
             if current_time - self.turn_timer > self.turn_delay:
-                # Pega o inimigo que vai agir
                 acting_enemy = self.enemies.sprites()[self.acting_enemy_index]
-                print(f"Turno de {acting_enemy.name}: Ação executada!")
+                self.action_text = f"{acting_enemy.name} está atacando!"
+                self.battle_state = "PERFORMING_ENEMY_ACTION"
+                self.action_timer = current_time
 
-                damage = acting_enemy.attack_power
-                if self.player.is_defending:
-                    damage //= 2
-                    self.player.is_defending = False
-
-                self.player.health -= damage
-
-                if self.player.health <= 0:
-                    self.player.health = 0
-                    self.battle_state = "DEFEAT"
+        if self.battle_state == "PERFORMING_ENEMY_ACTION":
+            if current_time - self.action_timer > self.action_delay:
+                self.execute_enemy_action()
+                
+                if self.battle_state == "DEFEAT":
+                    return
+                
+                self.acting_enemy_index += 1
+                if self.acting_enemy_index >= len(self.enemies):
+                    self.battle_state = "SELECTING_ACTION"
                 else:
-                    # Passa para o próximo inimigo ou devolve para o jogador
-                    self.acting_enemy_index += 1
-                    if self.acting_enemy_index >= len(self.enemies):
-                        self.battle_state = "SELECTING_ACTION"
-                    else:
-                        # Reseta o timer para o próximo inimigo atacar
-                        self.turn_timer = pygame.time.get_ticks()
+                    self.battle_state = "ENEMIES_ACTION"
+                    self.turn_timer = current_time
 
         return None
+    
+    def execute_player_action(self):
+        selected_action = self.menu_options[self.selected_option]
+        if selected_action == "Atacar":
+            target_enemy = self.get_current_target()
+            target_enemy.health -= self.player.attack_power
+            if target_enemy.health <= 0:
+                target_enemy.health = 0
+                target_enemy.kill()
+                if self.target_index >= len(self.enemies):
+                    self.target_index = 0
+
+        elif selected_action == "Defender":
+            self.player.is_defending = True
+
+        if not self.enemies:
+            self.battle_state = "VICTORY"
+
+    def execute_enemy_action(self):
+        acting_enemy = self.enemies.sprites()[self.acting_enemy_index]
+        damage = acting_enemy.attack_power
+        if self.player.is_defending:
+            damage //= 2
+            self.player.is_defending = False
+
+        self.player.health -= damage
+
+        if self.player.health <= 0:
+            self.player.health = 0
+            self.battle_state = "DEFEAT"
 
     def draw(self, screen):
         # Desenha o painel
@@ -110,8 +129,6 @@ class Battle:
         ui.draw_text(screen, self.player.name, 22, player_ui_pos_x, player_name_pos_y, settings.WHITE)
         ui.draw_health_bar(screen, self.player.health, self.player.max_health, player_health_bar_rect)
 
-        ### Novo: Loop para desenhar a UI de todos os inimigos
-        # Vamos posicioná-los dinamicamente no topo
         #total_enemies = len(self.enemies)
         #spacing = settings.SCREEN_WIDTH / (total_enemies + 1)
         #for i, enemy in enumerate(self.enemies):
@@ -144,11 +161,10 @@ class Battle:
                 if i == self.selected_option:
                     text_to_draw = f"[ {option} ]"
 
-                ui.draw_text(screen, text_to_draw, 28, option_x_start + (i * spacing), option_y, settings.BLACK)
+                ui.draw_text(screen, text_to_draw, 24, option_x_start + (i * spacing), option_y, settings.BLACK)
 
-        elif self.battle_state == "ENEMIES_ACTION":
-            acting_enemy = self.enemies.sprites()[self.acting_enemy_index]
-            ui.draw_text(screen, f"Turno de {acting_enemy.name}: Ação executada!", 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
+        elif self.battle_state in ["PERFORMING_PLAYER_ACTION", "PERFORMING_ENEMY_ACTION"]:
+            ui.draw_text(screen, self.action_text, 24, settings.SCREEN_WIDTH // 2, text_y, settings.BLACK)
 
         # Mensagem do Resultado Final
         if self.battle_state == "VICTORY":

@@ -25,6 +25,9 @@ class Game:
         self.battle = None
         #self.battle = Battle(self.player, self.boss)
 
+        self.end_battle_timer = None
+        self.end_battle_delay = 3000
+
     def load_data(self):
         try:
             with open("data/boss_data.json", "r", encoding="utf-8") as f:
@@ -72,21 +75,25 @@ class Game:
                 battle_result = self.battle.update()
                 if battle_result:
                     print(f"A batalha terminou com o resultado: {battle_result}")
-
+                    self.game_state = "BATTLE_OVER"
+                    self.end_battle_timer = pygame.time.get_ticks()
+            
+            elif self.game_state == "BATTLE_OVER":
+                current_time = pygame.time.get_ticks()
+                if current_time - self.end_battle_timer > self.end_battle_delay:
                     for enemy in self.current_enemies:
                         enemy.kill()
-
                     self.current_enemies = []
-
                     self.battle = None
                     self.player.health = self.player.max_health
+                    self.player.is_defending = False
                     self.game_state = "KITCHEN"
 
             # Desenho
             self.screen.fill(settings.BLACK)
             self.all_sprites.draw(self.screen)
 
-            if self.game_state == "BATTLE" and self.battle:
+            if (self.game_state == "BATTLE" or self.game_state == "BATTLE_OVER") and self.battle:
                 self.battle.draw(self.screen)
 
             pygame.display.flip()
